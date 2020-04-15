@@ -1,0 +1,12 @@
+<launch>
+
+	<!-- ROS nodes (preview) -->
+	<include file="$(find accessing_raspicam_usbcam)/launch/camera_robot.launch" />
+
+	<node	pkg="accessing_raspicam_usbcam" 
+		name="camera_preview" 
+		type="camera_preview.py" 
+		output="screen">
+	</node>
+
+</launch>

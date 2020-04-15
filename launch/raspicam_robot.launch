@@ -1,0 +1,17 @@
+<launch>
+
+	<!-- ROS nodes (raspicam_node) -->
+	<node	pkg="raspicam_node" 
+		name="raspicam_node_robot" 
+		type="raspicam_node" 
+		output="screen">
+
+		<rosparam command="load" file="$(find accessing_raspicam_usbcam)/calibration/camera_calibration/raspicam.yaml" />
+		<param name="width" value="320"/>
+		<param name="height" value="240"/>
+		<param name="framerate" value="90"/>
+		<param name="camera_frame_id" value="raspicam_node_robot"/>
+
+	</node>
+
+</launch>
