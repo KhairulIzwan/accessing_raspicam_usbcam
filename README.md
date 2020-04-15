@@ -12,8 +12,8 @@ enough for ROS implementation
 3. **raspicam_preview.py**: Accessing camera (raspicam) in ROS way
 
 ## launch
-1. **camera_robot.launch**: Accessing camera (usb) in ROS way
-2. **raspicam_robot.launch**: Accessing camera (raspicam) in ROS way
+1. **accessing_raspicam.launch**: Accessing camera (usb) in ROS way
+2. **access_camera.launch**: Accessing camera (raspicam) in ROS way
 
 > Required ROS packages
 >> 1. raspicam
