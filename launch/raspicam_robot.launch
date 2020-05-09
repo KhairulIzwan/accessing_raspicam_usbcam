@@ -2,7 +2,7 @@
 
 	<!-- ROS nodes (raspicam_node) -->
 	<node	pkg="raspicam_node" 
-		name="raspicam_node_robot" 
+		name="raspicam" 
 		type="raspicam_node" 
 		output="screen">
 
