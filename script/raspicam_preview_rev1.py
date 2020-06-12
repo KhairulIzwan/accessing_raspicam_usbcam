@@ -53,6 +53,7 @@ class RaspicamPreview:
 			print(e)
 
 		self.image_received = True
+		self.image = self.cv_image
 
 	# Get the width and height of the image
 	def cbCameraInfo(self):
@@ -94,7 +95,7 @@ class RaspicamPreview:
 #			self.showInfo()
 
 			# show the output frame
-			cv2.imshow("RaspicamPreview", self.cv_image)
+			cv2.imshow("RaspicamPreview", self.image)
 			cv2.waitKey(1)
 
 		else:
