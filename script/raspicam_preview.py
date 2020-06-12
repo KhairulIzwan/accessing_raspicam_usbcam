@@ -18,6 +18,11 @@ import os
 import imutils
 import time
 
+# import the necessary ROS packages
+import sys
+import rospy
+import rospkg
+
 # import the necessary ROS messages
 from std_msgs.msg import String
 from sensor_msgs.msg import CompressedImage
