@@ -90,7 +90,7 @@ class CameraPreview:
 			self.showInfo()
 
 			# show the output frame
-			cv2.imshow("Frame", self.cv_image)
+			cv2.imshow("CameraPreview", self.cv_image)
 			cv2.waitKey(1)
 
 		else:

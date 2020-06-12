@@ -34,39 +34,65 @@ class RaspicamPreview:
 
 		# Connect image topic
 		img_topic = "/raspicam/image/compressed"
-		self.image_sub = rospy.Subscriber(img_topic, CompressedImage, self.callback)
+		self.image_sub = rospy.Subscriber(img_topic, CompressedImage, self.cbImage)
 
 		# Allow up to one second to connection
 		rospy.sleep(1)
 
-	def callback(self, data):
+	def cbImage(self, msg):
 
 		# Convert image to OpenCV format
 		try:
-			cv_image = np.fromstring(data.data, np.uint8)
-			cv_image = cv2.imdecode(cv_image, cv2.IMREAD_COLOR)
+			self.cv_image = np.fromstring(msg.data, np.uint8)
+			self.cv_image = cv2.imdecode(self.cv_image, cv2.IMREAD_COLOR)
 
 			# OPTIONAL -- image-rotate """
-			cv_image = imutils.rotate(cv_image, angle=-90)
+			self.cv_image = imutils.rotate(self.cv_image, angle=-90)
 
 		except CvBridgeError as e:
 			print(e)
 
 		self.image_received = True
-		self.image = cv_image
+
+	# Get the width and height of the image
+	def cbCameraInfo(self):
+
+		self.imgWidth = rospy.get_param("/raspicam/width") 
+		self.imgHeight = rospy.get_param("/raspicam/height") 
+
+		rospy.set_param("/raspicam/vFlip", True)
+
+	# Overlay some text onto the image display
+	def showInfo(self):
+
+		fontFace = cv2.FONT_HERSHEY_DUPLEX
+		fontScale = 0.5
+		color = (255, 255, 255)
+		thickness = 1
+		lineType = cv2.LINE_AA
+		bottomLeftOrigin = False # if True (text upside down)
+
+		self.timestr = time.strftime("%Y%m%d-%H:%M:%S")
+
+		cv2.putText(self.cv_image, "{}".format(self.timestr), (10, 20), 
+			fontFace, fontScale, color, thickness, lineType, 
+			bottomLeftOrigin)
+		cv2.putText(self.cv_image, "Sample", (10, self.imgHeight-10), 
+			fontFace, fontScale, color, thickness, lineType, 
+			bottomLeftOrigin)
+		cv2.putText(self.cv_image, "(%d, %d)" % (self.imgWidth, self.imgHeight), 
+			(self.imgWidth-100, self.imgHeight-10), fontFace, fontScale, 
+			color, thickness, lineType, bottomLeftOrigin)
 
 	# show the output image and the final shape count
 	def preview(self):
 
 		if self.image_received:
 			# Overlay some text onto the image display
-			timestr = time.strftime("%Y%m%d-%H%M%S")
-			cv2.putText(self.image, timestr, 
-				(10, 20), 1, 1, 
-				(255, 255, 255), 1, cv2.LINE_AA, False)
+			self.showInfo()
 
 			# show the output frame
-			cv2.imshow("Frame", self.image)
+			cv2.imshow("RaspicamPreview", self.cv_image)
 			cv2.waitKey(1)
 
 		else:
