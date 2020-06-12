@@ -53,18 +53,18 @@ class RaspicamPreview:
 			self.cv_image = np.fromstring(msg.data, np.uint8)
 			self.cv_image = cv2.imdecode(self.cv_image, cv2.IMREAD_COLOR)
 
-			# OTIONAL -- image-rotate """
+			# OPTIONAL -- image-rotate """
 			self.cv_image = imutils.rotate(self.cv_image, angle=-90)
 #			self.cv_image = cv2.flip(self.cv_image,1)
 
 		except CvBridgeError as e:
 			print(e)
 
-		# Get the width and height of the image
-		self.cbCameraInfo()
+#		# Get the width and height of the image
+#		self.cbCameraInfo()
 
-		# Overlay some text onto the image display
-		self.showInfo()
+#		# Overlay some text onto the image display
+#		self.showInfo()
 
 		# Refresh the image on the screen
 		self.preview()
