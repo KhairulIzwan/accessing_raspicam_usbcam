@@ -19,9 +19,7 @@ import numpy as np
 import imutils
 
 # import the necessary ROS packages
-import sys
 import rospy
-import rospkg
 
 # import the necessary ROS messages
 from std_msgs.msg import String
@@ -53,7 +51,7 @@ class RaspicamPreview:
 			self.cv_image = np.fromstring(msg.data, np.uint8)
 			self.cv_image = cv2.imdecode(self.cv_image, cv2.IMREAD_COLOR)
 
-			# OPTIONAL -- image-rotate """
+			# OTIONAL -- image-rotate """
 			self.cv_image = imutils.rotate(self.cv_image, angle=-90)
 #			self.cv_image = cv2.flip(self.cv_image,1)
 
