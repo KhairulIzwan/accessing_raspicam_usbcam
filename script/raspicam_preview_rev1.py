@@ -75,13 +75,13 @@ class RaspicamPreview:
 
 		self.timestr = time.strftime("%Y%m%d-%H:%M:%S")
 
-		cv2.putText(self.cv_image, "{}".format(self.timestr), (10, 20), 
+		cv2.putText(self.image, "{}".format(self.timestr), (10, 20), 
 			fontFace, fontScale, color, thickness, lineType, 
 			bottomLeftOrigin)
-		cv2.putText(self.cv_image, "Sample", (10, self.imgHeight-10), 
+		cv2.putText(self.image, "Sample", (10, self.imgHeight-10), 
 			fontFace, fontScale, color, thickness, lineType, 
 			bottomLeftOrigin)
-		cv2.putText(self.cv_image, "(%d, %d)" % (self.imgWidth, self.imgHeight), 
+		cv2.putText(self.image, "(%d, %d)" % (self.imgWidth, self.imgHeight), 
 			(self.imgWidth-100, self.imgHeight-10), fontFace, fontScale, 
 			color, thickness, lineType, bottomLeftOrigin)
 
@@ -89,10 +89,10 @@ class RaspicamPreview:
 	def preview(self):
 
 		if self.image_received:
-#			self.cbCameraInfo()
+			self.cbCameraInfo()
 
 			# Overlay some text onto the image display
-#			self.showInfo()
+			self.showInfo()
 
 			# show the output frame
 			cv2.imshow("RaspicamPreview", self.image)

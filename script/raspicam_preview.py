@@ -58,6 +58,8 @@ class RaspicamPreview:
 		except CvBridgeError as e:
 			print(e)
 
+		self.image = self.cv_image
+
 		# Get the width and height of the image
 		self.cbCameraInfo()
 
@@ -87,20 +89,20 @@ class RaspicamPreview:
 
 		self.timestr = time.strftime("%Y%m%d-%H:%M:%S")
 
-		cv2.putText(self.cv_image, "{}".format(self.timestr), (10, 20), 
+		cv2.putText(self.image, "{}".format(self.timestr), (10, 20), 
 			fontFace, fontScale, color, thickness, lineType, 
 			bottomLeftOrigin)
-		cv2.putText(self.cv_image, "Sample", (10, self.imgHeight-10), 
+		cv2.putText(self.image, "Sample", (10, self.imgHeight-10), 
 			fontFace, fontScale, color, thickness, lineType, 
 			bottomLeftOrigin)
-		cv2.putText(self.cv_image, "(%d, %d)" % (self.imgWidth, self.imgHeight), 
+		cv2.putText(self.image, "(%d, %d)" % (self.imgWidth, self.imgHeight), 
 			(self.imgWidth-100, self.imgHeight-10), fontFace, fontScale, 
 			color, thickness, lineType, bottomLeftOrigin)
 
 	# Refresh the image on the screen
 	def preview(self):
 
-		cv2.imshow("RaspicamPreview", self.cv_image)
+		cv2.imshow("RaspicamPreview", self.image)
 		cv2.waitKey(1)
 
 	# Shutdown
