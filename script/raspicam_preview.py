@@ -23,7 +23,7 @@ from std_msgs.msg import String
 from sensor_msgs.msg import CompressedImage
 
 from cv_bridge import CvBridge
-from cv_bridge import CvBridgeErro
+from cv_bridge import CvBridgeError
 
 class RaspicamPreview:
 	def __init__(self):
