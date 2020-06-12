@@ -8,21 +8,22 @@
 ## Email: {wansnap@gmail.com}
 ################################################################################
 
+# import the necessary Python packages
 from __future__ import print_function
 from __future__ import division
 
-import sys
-import rospy
-import cv2
 import imutils
+import cv2
+import os
+import imutils
+import time
 
+# import the necessary ROS messages
 from std_msgs.msg import String
 from sensor_msgs.msg import CompressedImage
 
 from cv_bridge import CvBridge
-from cv_bridge import CvBridgeError
-
-import numpy as np
+from cv_bridge import CvBridgeErro
 
 class RaspicamPreview:
 	def __init__(self):
