@@ -32,12 +32,20 @@ class RaspicamPreview:
 		self.bridge = CvBridge()
 		self.image_received = False
 
+		rospy.on_shutdown(self.shutdown)
+
 		# Connect image topic
-		img_topic = "/raspicam/image/compressed"
-		self.image_sub = rospy.Subscriber(img_topic, CompressedImage, self.cbImage)
+		self.img_topic = "/raspicam/image/compressed"
+		self.image_sub = rospy.Subscriber(self.img_topic, CompressedImage, self.cbImage)
+
+		rospy.logwarn("RaspicamPreview Node [ONLINE]...")
 
 		# Allow up to one second to connection
 		rospy.sleep(1)
+
+	def shutdown(self):
+		rospy.logwarn("RaspicamPreview node [OFFLINE]")
+		cv2.destroyAllWindows()
 
 	def cbImage(self, msg):
 
