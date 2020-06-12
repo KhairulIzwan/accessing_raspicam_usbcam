@@ -37,7 +37,8 @@ class RaspicamPreview:
 
 		# Subscribe to Image msg
 		self.image_topic = "/raspicam/image/compressed"
-		self.image_sub = rospy.Subscriber(self.image_topic, CompressedImage, self.cbImage)
+		self.image_sub = rospy.Subscriber(self.image_topic, CompressedImage, 
+			self.cbImage, que)
 
 		rospy.logwarn("RaspicamPreview Node [ONLINE]...")
 
@@ -53,7 +54,7 @@ class RaspicamPreview:
 
 			# OPTIONAL -- image-rotate """
 			self.cv_image = imutils.rotate(self.cv_image, angle=-90)
-#			self.cv_image = cv2.flip(self.cv_image,1)
+			self.cv_image = cv2.flip(self.cv_image,1)
 
 		except CvBridgeError as e:
 			print(e)
