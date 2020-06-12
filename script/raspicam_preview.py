@@ -46,7 +46,7 @@ class RaspicamPreview:
 		# Allow up to one second to connection
 		rospy.sleep(1)
 
-	def cbImage(self,data):
+	def cbImage(self,msg):
 
 		try:
 			# direct conversion to CV2 ####
@@ -60,11 +60,11 @@ class RaspicamPreview:
 		except CvBridgeError as e:
 			print(e)
 
-#		# Get the width and height of the image
-#		self.cbCameraInfo()
+		# Get the width and height of the image
+		self.cbCameraInfo()
 
-#		# Overlay some text onto the image display
-#		self.showInfo()
+		# Overlay some text onto the image display
+		self.showInfo()
 
 		# Refresh the image on the screen
 		self.preview()
