@@ -14,7 +14,6 @@
 from __future__ import print_function
 from __future__ import division
 
-from imutils.video import VideoStream
 import imutils
 import cv2
 import os
@@ -60,8 +59,6 @@ class CameraPreview:
 		# Convert image to OpenCV format
 		try:
 			self.cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-			# Clone the original image for displaying purpose later
-			self.frameClone = self.cv_image.copy()
 		except CvBridgeError as e:
 			print(e)
 

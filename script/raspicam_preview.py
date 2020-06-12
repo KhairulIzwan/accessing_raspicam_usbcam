@@ -55,8 +55,7 @@ class RaspicamPreview:
 
 			# OTIONAL -- image-rotate """
 			self.cv_image = imutils.rotate(self.cv_image, angle=-90)
-			self.cv_image = cv2.flip(self.cv_image,1)
-			self.cv_image_copy = self.cv_image.copy()
+#			self.cv_image = cv2.flip(self.cv_image,1)
 
 		except CvBridgeError as e:
 			print(e)
