@@ -88,6 +88,8 @@ class RaspicamPreview:
 	def preview(self):
 
 		if self.image_received:
+			self.cbCameraInfo()
+
 			# Overlay some text onto the image display
 			self.showInfo()
 
