@@ -1,21 +1,32 @@
 #!/usr/bin/env python
 
 ################################################################################
-## {Description}: Preview an Image from USB type camera
+## {Description}: Accessing raspicam/usbcam
+## Original Code from Raspberry Pi for Computer Vision - Hobbyist Bundle
+## Re-use and transform into ROS nodes
 ################################################################################
 ## Author: Khairul Izwan Bin Kamsani
 ## Version: {1}.{0}.{0}
 ## Email: {wansnap@gmail.com}
 ################################################################################
 
+# import the necessary Python packages
 from __future__ import print_function
 from __future__ import division
 
+from imutils.video import VideoStream
+import imutils
+import cv2
+import os
+import imutils
+import time
+
+# import the necessary ROS packages
 import sys
 import rospy
-import cv2
-import imutils
+import rospkg
 
+# import the necessary ROS messages
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import CameraInfo
@@ -23,58 +34,56 @@ from sensor_msgs.msg import CameraInfo
 from cv_bridge import CvBridge
 from cv_bridge import CvBridgeError
 
-class CameraPreview_node:
+class CameraPreview:
 	def __init__(self):
-		# Initializing your ROS Node
-		rospy.init_node('CameraPreview_node', anonymous=True)
+
+		self.bridge = CvBridge()
 
 		rospy.on_shutdown(self.shutdown)
 
-		# Give the OpenCV display window a name
-		self.cv_window_name = "Camera Preview"
+		# Subscribe to Image msg
+		self.image_topic = "/cv_camera/image_raw"
+		self.image_sub = rospy.Subscriber(self.image_topic, Image, self.cbImage)
 
-		# Create the cv_bridge object
-		self.bridge = CvBridge()
+		# Subscribe to CameraInfo msg
+		self.cameraInfo_topic = "/cv_camera/camera_info"
+		self.cameraInfo_sub = rospy.Subscriber(self.cameraInfo_topic, CameraInfo, 
+			self.cbCameraInfo)
 
-		# Subscribe to the raw camera image topic
-		self.imgRaw_sub = rospy.Subscriber("/cv_camera/image_raw", 
-				Image, self.callback)
+		rospy.logwarn("CameraPreview Node [ONLINE]...")
 
-		# Subscribe to the camera info topic
-		self.imgInfo_sub = rospy.Subscriber("/cv_camera/camera_info", 
-				CameraInfo, self.getCameraInfo)
+		# Allow up to one second to connection
+		rospy.sleep(1)
 
-	def callback(self,data):
-		# Convert the raw image to OpenCV format
-		self.cvtImage(data)
+	def cbImage(self, msg):
 
-		# Overlay some text onto the image display
-		self.textInfo()
-
-		# Refresh the image on the screen
-		self.displayImg()
-
-	# Get the width and height of the image
-	def getCameraInfo(self, msg):
-		self.image_width = msg.width
-		self.image_height = msg.height
-
-	# Convert the raw image to OpenCV format
-	def cvtImage(self, data):
+		# Convert image to OpenCV format
 		try:
-			# Convert the raw image to OpenCV format """
-			self.cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-
-			# TODO:
-			#self.cv_image = imutils.rotate(self.cv_image, angle=180)
-			self.cv_image = cv2.flip(self.cv_image,1)
-			self.cv_image_copy = self.cv_image.copy()
-
+			self.cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+			# Clone the original image for displaying purpose later
+			self.frameClone = self.cv_image.copy()
 		except CvBridgeError as e:
 			print(e)
 
-	# Overlay some text onto the image display
-	def textInfo(self):
+		# Put an Info
+		self.showInfo()
+
+		# Show an Image
+		self.preview()
+
+	def cbCameraInfo(self, msg):
+
+		# Get CameraInfo
+		self.imgWidth = msg.width
+		self.imgHeight = msg.height
+
+	def shutdown(self):
+
+		rospy.logerr("CameraPreview Node [OFFLINE]...")
+		cv2.destroyAllWindows()
+
+	def showInfo(self):
+
 		fontFace = cv2.FONT_HERSHEY_DUPLEX
 		fontScale = 0.5
 		color = (255, 255, 255)
@@ -82,37 +91,33 @@ class CameraPreview_node:
 		lineType = cv2.LINE_AA
 		bottomLeftOrigin = False # if True (text upside down)
 
-		cv2.putText(self.cv_image, "Sample", (10, self.image_height-10), 
-			cv2.FONT_HERSHEY_DUPLEX, 0.5, (255, 255, 255), 1, 
-			cv2.LINE_AA, False)
-		cv2.putText(self.cv_image, "(%d, %d)" % (self.image_width, 
-			self.image_height), (self.image_width-100, 
-			self.image_height-10), cv2.FONT_HERSHEY_DUPLEX, 0.5, 
-			(255, 255, 255), 1, cv2.LINE_AA, False)
+		self.timestr = time.strftime("%Y%m%d-%H:%M:%S")
 
-	# Refresh the image on the screen
-	def displayImg(self):
-		cv2.imshow(self.cv_window_name, self.cv_image)
+		cv2.putText(self.cv_image, "{}".format(self.timestr), (10, 20), 
+			fontFace, fontScale, color, thickness, lineType, 
+			bottomLeftOrigin)
+		cv2.putText(self.cv_image, "Sample", (10, self.imgHeight-10), 
+			fontFace, fontScale, color, thickness, lineType, 
+			bottomLeftOrigin)
+		cv2.putText(self.cv_image, "(%d, %d)" % (self.imgWidth, self.imgHeight), 
+			(self.imgWidth-100, self.imgHeight-10), fontFace, fontScale, 
+			color, thickness, lineType, bottomLeftOrigin)
+
+	def preview(self):
+
+		cv2.imshow("CameraPreview", self.cv_image)
 		cv2.waitKey(1)
 
-	# Shutdown
-	def shutdown(self):
-		try:
-			rospy.loginfo("CameraPreview_node [OFFLINE]...")
-
-		finally:
-			cv2.destroyAllWindows()
-
 def main(args):
-	vn = CameraPreview_node()
+
+	rospy.init_node('camera_preview', anonymous=False)
+	camera = CameraPreview()
 
 	try:
 		rospy.spin()
 	except KeyboardInterrupt:
-		rospy.loginfo("CameraPreview_node [OFFLINE]...")
-
-	cv2.destroyAllWindows()
+		rospy.logerr("CameraPreview Node [OFFLINE]...")
 
 if __name__ == '__main__':
-	rospy.loginfo("CameraPreview_node [ONLINE]...")
+
 	main(sys.argv)

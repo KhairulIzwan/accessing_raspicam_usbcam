@@ -17,6 +17,8 @@ import time
 # import the necessary ROS packages
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
+from sensor_msgs.msg import CameraInfo
+
 from cv_bridge import CvBridge
 from cv_bridge import CvBridgeError
 
@@ -28,41 +30,77 @@ class CameraPreview:
 		self.bridge = CvBridge()
 		self.image_received = False
 
-		# Connect image topic
-		img_topic = "/cv_camera/image_raw"
-		self.image_sub = rospy.Subscriber(img_topic, Image, self.callback)
+		rospy.on_shutdown(self.shutdown)
+
+		# Subscribe to Image msg
+		self.image_topic = "/cv_camera/image_raw"
+		self.image_sub = rospy.Subscriber(self.image_topic, Image, self.cbImage)
+
+		# Subscribe to CameraInfo msg
+		self.cameraInfo_topic = "/cv_camera/camera_info"
+		self.cameraInfo_sub = rospy.Subscriber(self.cameraInfo_topic, CameraInfo, 
+			self.cbCameraInfo)
+
+		rospy.logwarn("CameraPreview Node [ONLINE]...")
 
 		# Allow up to one second to connection
 		rospy.sleep(1)
 
-	def callback(self, data):
+	def cbImage(self, msg):
 
 		# Convert image to OpenCV format
 		try:
-			cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+			self.cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+			# Clone the original image for displaying purpose later
+			self.frameClone = self.cv_image.copy()
 		except CvBridgeError as e:
 			print(e)
 
 		self.image_received = True
-		self.image = cv_image
+
+	def cbCameraInfo(self, msg):
+
+		# Get CameraInfo
+		self.imgWidth = msg.width
+		self.imgHeight = msg.height
+
+	def showInfo(self):
+
+		fontFace = cv2.FONT_HERSHEY_DUPLEX
+		fontScale = 0.5
+		color = (255, 255, 255)
+		thickness = 1
+		lineType = cv2.LINE_AA
+		bottomLeftOrigin = False # if True (text upside down)
+
+		self.timestr = time.strftime("%Y%m%d-%H:%M:%S")
+
+		cv2.putText(self.cv_image, "{}".format(self.timestr), (10, 20), 
+			fontFace, fontScale, color, thickness, lineType, 
+			bottomLeftOrigin)
+		cv2.putText(self.cv_image, "Sample", (10, self.imgHeight-10), 
+			fontFace, fontScale, color, thickness, lineType, 
+			bottomLeftOrigin)
+		cv2.putText(self.cv_image, "(%d, %d)" % (self.imgWidth, self.imgHeight), 
+			(self.imgWidth-100, self.imgHeight-10), fontFace, fontScale, 
+			color, thickness, lineType, bottomLeftOrigin)
 
 	# show the output image and the final shape count
 	def preview(self):
 
 		if self.image_received:
-			# Overlay some text onto the image display
-			timestr = time.strftime("%Y%m%d-%H%M%S")
-			cv2.putText(self.image, timestr, 
-				(10, 20), 1, 1, 
-				(255, 255, 255), 1, cv2.LINE_AA, False)
+			self.showInfo()
 
 			# show the output frame
-			cv2.imshow("Frame", self.image)
+			cv2.imshow("Frame", self.cv_image)
 			cv2.waitKey(1)
 
-			return True
 		else:
-			return False
+			rospy.logerr("No images recieved")
+
+	def shutdown(self):
+		rospy.logerr("CameraPreview Node [OFFLINE]...")
+		cv2.destroyAllWindows()
 
 if __name__ == '__main__':
 

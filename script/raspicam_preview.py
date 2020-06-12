@@ -24,51 +24,25 @@ from cv_bridge import CvBridgeError
 
 import numpy as np
 
-class RaspicamPreview_node:
+class RaspicamPreview:
 	def __init__(self):
-		# Initializing your ROS Node
-		rospy.init_node('RaspicamPreview_node', anonymous=True)
+
+		self.bridge = CvBridge()
 
 		rospy.on_shutdown(self.shutdown)
 
-		# Give the OpenCV display window a name
-		self.cv_window_name = "Camera Preview"
+		# Subscribe to Image msg
+		self.image_topic = "/raspicam_node_robot/image/compressed"
+		self.image_sub = rospy.Subscriber(self.image_topic, CompressedImage, self.cbImage)
 
-		# Create the cv_bridge object
-		self.bridge = CvBridge()
+	def cbImage(self,data):
 
-		# Subscribe to the raw camera image topic
-		self.imgRaw_sub = rospy.Subscriber("/raspicam_node_robot/image/compressed", 
-				CompressedImage, self.callback, queue_size=1)
-
-	def callback(self,data):
-		# Convert the raw image to OpenCV format
-		self.cvtImage(data)
-
-		# Get the width and height of the image
-		self.getCameraInfo()
-
-		# Overlay some text onto the image display
-		self.textInfo()
-
-		# Refresh the image on the screen
-		self.displayImg()
-
-	# Get the width and height of the image
-	def getCameraInfo(self):
-		self.image_width = rospy.get_param("/raspicam_node_robot/width") 
-		self.image_height = rospy.get_param("/raspicam_node_robot/height") 
-
-		rospy.set_param("/raspicam_node_robot/raspicam_node_robot/vFlip", True)
-
-	# Convert the raw image to OpenCV format
-	def cvtImage(self, data):
 		try:
 			# Convert the raw image to OpenCV format """
 			# self.cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
 
 			# direct conversion to CV2 ####
-			self.cv_image = np.fromstring(data.data, np.uint8)
+			self.cv_image = np.fromstring(msg.data, np.uint8)
 			self.cv_image = cv2.imdecode(self.cv_image, cv2.IMREAD_COLOR)
 
 			# OTIONAL -- image-rotate """
@@ -79,39 +53,67 @@ class RaspicamPreview_node:
 		except CvBridgeError as e:
 			print(e)
 
+		# Get the width and height of the image
+		self.cbCameraInfo()
+
+		# Overlay some text onto the image display
+		self.showInfo()
+
+		# Refresh the image on the screen
+		self.displayImg()
+
+	# Get the width and height of the image
+	def cbCameraInfo(self):
+
+		self.imgWidth = rospy.get_param("/raspicam_node_robot/width") 
+		self.imgHeight = rospy.get_param("/raspicam_node_robot/height") 
+
+		rospy.set_param("/raspicam_node_robot/raspicam_node_robot/vFlip", True)
+
 	# Overlay some text onto the image display
-	def textInfo(self):
-		cv2.putText(self.cv_image, "Sample", (10, self.image_height-10), 
-			cv2.FONT_HERSHEY_DUPLEX, 0.5, (255, 255, 255), 1, 
-			cv2.LINE_AA, False)
-		cv2.putText(self.cv_image, "(%d, %d)" % (self.image_width, 
-			self.image_height), (self.image_width-100, 
-			self.image_height-10), cv2.FONT_HERSHEY_DUPLEX, 0.5, 
-			(255, 255, 255), 1, cv2.LINE_AA, False)
+	def showInfo(self):
+
+		fontFace = cv2.FONT_HERSHEY_DUPLEX
+		fontScale = 0.5
+		color = (255, 255, 255)
+		thickness = 1
+		lineType = cv2.LINE_AA
+		bottomLeftOrigin = False # if True (text upside down)
+
+		self.timestr = time.strftime("%Y%m%d-%H:%M:%S")
+
+		cv2.putText(self.cv_image, "{}".format(self.timestr), (10, 20), 
+			fontFace, fontScale, color, thickness, lineType, 
+			bottomLeftOrigin)
+		cv2.putText(self.cv_image, "Sample", (10, self.imgHeight-10), 
+			fontFace, fontScale, color, thickness, lineType, 
+			bottomLeftOrigin)
+		cv2.putText(self.cv_image, "(%d, %d)" % (self.imgWidth, self.imgHeight), 
+			(self.imgWidth-100, self.imgHeight-10), fontFace, fontScale, 
+			color, thickness, lineType, bottomLeftOrigin)
 
 	# Refresh the image on the screen
 	def displayImg(self):
-		cv2.imshow(self.cv_window_name, self.cv_image)
+
+		cv2.imshow("RaspicamPreview", self.cv_image)
 		cv2.waitKey(1)
 
 	# Shutdown
 	def shutdown(self):
-		try:
-			rospy.loginfo("[INFO] Raspicam_Preview_node [OFFLINE]...")
 
-		finally:
-			cv2.destroyAllWindows()
+		rospy.logwarn("RaspicamPreview Node [OFFLINE]...")
+		cv2.destroyAllWindows()
 
 def main(args):
-	vn = RaspicamPreview_node()
 
+	# Initializing your ROS Node
+	rospy.init_node('raspicam_preview', anonymous=False)
+	camera = RaspicamPreview()
 	try:
 		rospy.spin()
 	except KeyboardInterrupt:
-		rospy.loginfo("[INFO] Raspicam_Preview_node [OFFLINE]...")
-
-	cv2.destroyAllWindows()
+		rospy.logerr("RaspicamPreview Node [OFFLINE]...")
 
 if __name__ == '__main__':
-	rospy.loginfo("[INFO] Raspicam_Preview_node [ONLINE]...")
+
 	main(sys.argv)
