@@ -44,7 +44,7 @@ class RaspicamPreview:
 		rospy.sleep(1)
 
 	def shutdown(self):
-		rospy.logwarn("RaspicamPreview node [OFFLINE]")
+		rospy.logerr("RaspicamPreview node [OFFLINE]")
 		cv2.destroyAllWindows()
 
 	def cbImage(self, msg):
