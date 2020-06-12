@@ -46,7 +46,7 @@ class RaspicamPreview:
 			cv_image = np.fromstring(data.data, np.uint8)
 			cv_image = cv2.imdecode(cv_image, cv2.IMREAD_COLOR)
 
-			# OTIONAL -- image-rotate """
+			# OPTIONAL -- image-rotate """
 			cv_image = imutils.rotate(cv_image, angle=-90)
 
 		except CvBridgeError as e:

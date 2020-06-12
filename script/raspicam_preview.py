@@ -36,7 +36,7 @@ class RaspicamPreview:
 		rospy.on_shutdown(self.shutdown)
 
 		# Subscribe to Image msg
-		self.image_topic = "/raspicam_node_robot/image/compressed"
+		self.image_topic = "/raspicam_node/image/compressed"
 		self.image_sub = rospy.Subscriber(self.image_topic, CompressedImage, self.cbImage)
 
 		rospy.logwarn("RaspicamPreview Node [ONLINE]...")
@@ -51,7 +51,7 @@ class RaspicamPreview:
 			self.cv_image = np.fromstring(msg.data, np.uint8)
 			self.cv_image = cv2.imdecode(self.cv_image, cv2.IMREAD_COLOR)
 
-			# OTIONAL -- image-rotate """
+			# OPTIONAL -- image-rotate """
 			self.cv_image = imutils.rotate(self.cv_image, angle=-90)
 #			self.cv_image = cv2.flip(self.cv_image,1)
 
@@ -59,10 +59,10 @@ class RaspicamPreview:
 			print(e)
 
 		# Get the width and height of the image
-#		self.cbCameraInfo()
+		self.cbCameraInfo()
 
 		# Overlay some text onto the image display
-#		self.showInfo()
+		self.showInfo()
 
 		# Refresh the image on the screen
 		self.preview()
