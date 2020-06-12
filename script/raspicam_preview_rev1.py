@@ -88,10 +88,10 @@ class RaspicamPreview:
 	def preview(self):
 
 		if self.image_received:
-			self.cbCameraInfo()
+#			self.cbCameraInfo()
 
 			# Overlay some text onto the image display
-			self.showInfo()
+#			self.showInfo()
 
 			# show the output frame
 			cv2.imshow("RaspicamPreview", self.cv_image)
