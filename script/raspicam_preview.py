@@ -70,10 +70,10 @@ class RaspicamPreview:
 	# Get the width and height of the image
 	def cbCameraInfo(self):
 
-		self.imgWidth = rospy.get_param("/raspicam/raspicam_node_robot/width") 
-		self.imgHeight = rospy.get_param("/raspicam/raspicam_node_robot/height") 
+		self.imgWidth = rospy.get_param("/raspicam/width") 
+		self.imgHeight = rospy.get_param("/raspicam/height") 
 
-		rospy.set_param("/raspicam/raspicam_node_robot/vFlip", True)
+		rospy.set_param("/raspicam/vFlip", True)
 
 	# Overlay some text onto the image display
 	def showInfo(self):
