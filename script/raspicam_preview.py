@@ -36,7 +36,7 @@ class RaspicamPreview:
 		rospy.on_shutdown(self.shutdown)
 
 		# Subscribe to Image msg
-		self.image_topic = "/raspicam_node/image/compressed"
+		self.image_topic = "/raspicam/image/compressed"
 		self.image_sub = rospy.Subscriber(self.image_topic, CompressedImage, self.cbImage)
 
 		rospy.logwarn("RaspicamPreview Node [ONLINE]...")
