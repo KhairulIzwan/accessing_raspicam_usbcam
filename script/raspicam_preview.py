@@ -12,11 +12,11 @@
 from __future__ import print_function
 from __future__ import division
 
-import imutils
+import sys
 import cv2
-import os
-import imutils
 import time
+import numpy as np
+import imutils
 
 # import the necessary ROS packages
 import sys
@@ -108,7 +108,7 @@ class RaspicamPreview:
 	# Shutdown
 	def shutdown(self):
 
-		rospy.logwarn("RaspicamPreview Node [OFFLINE]...")
+		rospy.logerr("RaspicamPreview Node [OFFLINE]...")
 		cv2.destroyAllWindows()
 
 def main(args):
@@ -116,6 +116,7 @@ def main(args):
 	# Initializing your ROS Node
 	rospy.init_node('raspicam_preview', anonymous=False)
 	camera = RaspicamPreview()
+
 	try:
 		rospy.spin()
 	except KeyboardInterrupt:
