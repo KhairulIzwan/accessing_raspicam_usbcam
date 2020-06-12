@@ -35,12 +35,14 @@ class RaspicamPreview:
 		self.image_topic = "/raspicam_node_robot/image/compressed"
 		self.image_sub = rospy.Subscriber(self.image_topic, CompressedImage, self.cbImage)
 
+		rospy.logwarn("RaspicamPreview Node [ONLINE]...")
+
+		# Allow up to one second to connection
+		rospy.sleep(1)
+
 	def cbImage(self,data):
 
 		try:
-			# Convert the raw image to OpenCV format """
-			# self.cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-
 			# direct conversion to CV2 ####
 			self.cv_image = np.fromstring(msg.data, np.uint8)
 			self.cv_image = cv2.imdecode(self.cv_image, cv2.IMREAD_COLOR)
@@ -60,7 +62,7 @@ class RaspicamPreview:
 		self.showInfo()
 
 		# Refresh the image on the screen
-		self.displayImg()
+		self.preview()
 
 	# Get the width and height of the image
 	def cbCameraInfo(self):
@@ -93,7 +95,7 @@ class RaspicamPreview:
 			color, thickness, lineType, bottomLeftOrigin)
 
 	# Refresh the image on the screen
-	def displayImg(self):
+	def preview(self):
 
 		cv2.imshow("RaspicamPreview", self.cv_image)
 		cv2.waitKey(1)
